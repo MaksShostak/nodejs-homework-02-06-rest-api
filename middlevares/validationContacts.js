@@ -1,6 +1,6 @@
 const Joi = require("joi");
 
-const validationSchemaAddContact = (body) => {
+const validationSchemaAddContact = (req, res, next) => {
   const schemaAddContact = Joi.object({
     name: Joi.string().alphanum().min(2).required(),
     email: Joi.string()
@@ -11,10 +11,19 @@ const validationSchemaAddContact = (body) => {
       .required(),
     phone: Joi.string().alphanum().min(2).required(),
   });
-  return schemaAddContact.validate(body);
+
+  const validationResult = schemaAddContact.validate(req.body);
+
+  if (validationResult.error) {
+    return res.status(400).json({
+      status: validationResult.error.details[0].message,
+      message: "Bad Request, missing required name field",
+    });
+  }
+  next();
 };
 
-const validationSchemaUpdateContact = (body) => {
+const validationSchemaUpdateContact = (req, res, next) => {
   const schemaUpdateContact = Joi.object({
     name: Joi.string().alphanum().min(2),
     email: Joi.string().email({
@@ -24,9 +33,17 @@ const validationSchemaUpdateContact = (body) => {
     phone: Joi.string().alphanum().min(2),
   }).min(1);
 
-  return schemaUpdateContact.validate(body);
+  const validationResult = schemaUpdateContact.validate(req.body);
+
+  if (validationResult.error) {
+    return res.status(400).json({
+      status: validationResult.error.details[0].message,
+      message: " Bad Request, missing fields",
+    });
+  }
+  next();
 };
-const validationReplaceUpdateContact = (body) => {
+const validationReplaceUpdateContact = (req, res, next) => {
   const schemaReplaceContact = Joi.object({
     name: Joi.string().alphanum().min(2).optional(),
     email: Joi.string()
@@ -38,7 +55,15 @@ const validationReplaceUpdateContact = (body) => {
     phone: Joi.string().alphanum().min(2).optional(),
   }).min(1);
 
-  return schemaReplaceContact.validate(body);
+  const validationResult = schemaReplaceContact.validate(req.body);
+
+  if (validationResult.error) {
+    return res.status(400).json({
+      status: validationResult.error.details[0].message,
+      message: "Bad Request, missing fields",
+    });
+  }
+  next();
 };
 
 module.exports = {
