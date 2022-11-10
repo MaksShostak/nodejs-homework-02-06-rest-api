@@ -85,6 +85,7 @@ const updateContact = async (contactId, body) => {
     contact.name = name;
     contact.email = email;
     contact.phone = phone;
+    // contact.id = contactId;
 
     await updateContacts(contacts);
     return contact;
@@ -99,7 +100,7 @@ const replaceContact = async (contactId, body) => {
   try {
     const contacts = await listContacts();
     const [contact] = contacts.filter((el) => el.id === contactId);
-
+    // contact.id = contactId
     if (name) {
       contact.name = name;
     }
