@@ -10,6 +10,7 @@ const validationSchemaAddContact = (req, res, next) => {
       })
       .required(),
     phone: Joi.string().alphanum().min(2).required(),
+    favorite: Joi.boolean(),
   });
 
   const validationResult = schemaAddContact.validate(req.body);
@@ -31,6 +32,7 @@ const validationSchemaUpdateContact = (req, res, next) => {
       tlds: { allow: ["com", "net"] },
     }),
     phone: Joi.string().alphanum().min(2),
+    favorite: Joi.boolean(),
   }).min(1);
 
   const validationResult = schemaUpdateContact.validate(req.body);
@@ -53,6 +55,7 @@ const validationReplaceUpdateContact = (req, res, next) => {
       })
       .optional(),
     phone: Joi.string().alphanum().min(2).optional(),
+    favorite: Joi.boolean(),
   }).min(1);
 
   const validationResult = schemaReplaceContact.validate(req.body);
