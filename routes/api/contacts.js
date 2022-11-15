@@ -8,6 +8,7 @@ const {
   deleteContact,
   putContact,
   patchContact,
+  updateStatusContact,
 } = require("../../controllers/contactsController");
 
 const {
@@ -27,5 +28,9 @@ router.delete("/:id", deleteContact);
 router.put("/:id", validationSchemaUpdateContact, putContact);
 
 router.patch("/:id", validationReplaceUpdateContact, patchContact);
-
+router.patch(
+  "/:id/favorite",
+  validationReplaceUpdateContact,
+  updateStatusContact
+);
 module.exports = { contactsRouter: router };
