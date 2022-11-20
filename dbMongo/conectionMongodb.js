@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const uriDb = process.env.MONGO_URL;
 
-const connectionMongo = async () => {
+const connectionMongo = () => {
   return mongoose.connect(uriDb, {
     promiseLibrary: global.Promise,
     useNewUrlParser: true,

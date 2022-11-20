@@ -5,11 +5,19 @@ const {
   addContact,
   updateContact,
   replaceContact,
-} = require("../models/contacts");
+} = require("../services/contactsService");
 
 const getContacts = async (req, res, next) => {
+  let { page = 0, limit = 10, favorite } = req.query;
+  let skip = 0;
+  limit = parseInt(limit);
+
+  page === 0 ? (skip = 0) : (skip = parseInt(page) * limit - limit);
+  skip = parseInt(skip);
+
+  const { _id: userId } = req.user;
   try {
-    const contacts = await listContacts();
+    const contacts = await listContacts(userId, { skip, limit, favorite });
 
     res.status(200).json({
       status: "success",
@@ -26,14 +34,15 @@ const getContacts = async (req, res, next) => {
 };
 
 const getOneContactById = async (req, res, next) => {
-  const { id } = req.params;
+  const { id: contactId } = req.params;
+  const { _id: userId } = req.user;
   try {
-    const contact = await getContactById(id);
+    const contact = await getContactById(contactId, userId);
 
     if (!contact) {
       return res.status(404).json({
         status: "Not found",
-        message: `failure, contact with id: ${id} not found!`,
+        message: `failure, contact with id: ${contactId} not found!`,
         code: 404,
       });
     }
@@ -53,8 +62,9 @@ const getOneContactById = async (req, res, next) => {
 };
 
 const postContact = async (req, res, next) => {
+  const { _id: userId } = req.user;
   try {
-    const contact = await addContact(req.body);
+    const contact = await addContact(req.body, userId);
     res.status(201).json({
       status: "success",
       code: 201,
@@ -71,15 +81,16 @@ const postContact = async (req, res, next) => {
 };
 
 const deleteContact = async (req, res, next) => {
-  const { id } = req.params;
+  const { id: contactId } = req.params;
+  const { _id: userId } = req.user;
   try {
-    const contact = await removeContact(id);
+    const contact = await removeContact(contactId, userId);
 
     // await removeContact(id);
     if (!contact) {
       return res.status(404).json({
         status: "Not found",
-        message: `failure, contact with id: ${id} not found!`,
+        message: `failure, contact with id: ${contactId} not found!`,
         code: 404,
       });
     }
@@ -98,13 +109,14 @@ const deleteContact = async (req, res, next) => {
 };
 
 const putContact = async (req, res, next) => {
-  const { id } = req.params;
+  const { id: contactId } = req.params;
+  const { _id: userId } = req.user;
   try {
-    const contact = await updateContact(id, req.body);
+    const contact = await updateContact(contactId, req.body, userId);
     if (!contact) {
       return res.status(404).json({
         status: "Not found",
-        message: `failure, contact with id: ${id} not found!`,
+        message: `failure, contact with id: ${contactId} not found!`,
         code: 404,
       });
     }
@@ -123,13 +135,14 @@ const putContact = async (req, res, next) => {
 };
 
 const patchContact = async (req, res, next) => {
-  const { id } = req.params;
+  const { id: contactId } = req.params;
+  const { _id: userId } = req.user;
   try {
-    const contact = await replaceContact(id, req.body);
+    const contact = await replaceContact(contactId, req.body, userId);
     if (!contact) {
       return res.status(404).json({
         status: "Not found",
-        message: `failure, contact with id: ${id} not found!`,
+        message: `failure, contact with id: ${contactId} not found!`,
         code: 404,
       });
     }
@@ -148,7 +161,8 @@ const patchContact = async (req, res, next) => {
 };
 
 const updateStatusContact = async (req, res, next) => {
-  const { id } = req.params;
+  const { id: contactId } = req.params;
+  const { _id: userId } = req.user;
   const keys = Object.keys(req.body);
 
   try {
@@ -159,11 +173,11 @@ const updateStatusContact = async (req, res, next) => {
         code: 400,
       });
     }
-    const result = await updateContact(id, req.body);
+    const result = await updateContact(contactId, req.body, userId);
     if (!result) {
       return res.status(404).json({
         status: "Not found",
-        message: `failure, contact with id: ${id} not found!`,
+        message: `failure, contact with id: ${contactId} not found!`,
         code: 404,
       });
     }

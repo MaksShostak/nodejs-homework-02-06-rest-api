@@ -17,6 +17,8 @@ const {
   validationReplaceUpdateContact,
 } = require("../../middlevares/validationContacts");
 
+const { authMiddleware } = require("../../middlevares/validationToken");
+router.use(authMiddleware);
 router.get("/", getContacts);
 
 router.get("/:id", getOneContactById);
