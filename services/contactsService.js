@@ -1,14 +1,26 @@
-const { Contact } = require("../models/contactsModel");
+const { Contact } = require("../models/contactModel");
 
-const listContacts = async (userId, { skip, limit, favorite }) => {
-  const sortFav = favorite ? { favorite: -1 } : { favorite: 1 };
-  return await Contact.find({ owner: userId })
+const listContacts = async (userId, { page = 0, limit = 10, favorite }) => {
+  // const skip = (page - 1) * limit;
+  let skip = 0;
+  page === 0 ? (skip = 0) : (skip = page * limit - limit);
+  if (favorite === undefined) {
+    return await Contact.find({ owner: userId }).skip(skip).limit(limit);
+  }
+  return await Contact.find({ owner: userId, favorite })
     .skip(skip)
-    .limit(limit)
-    .sort(sortFav);
+    .limit(limit);
+  // return await Contact.find(
+  //   { owner: userId, favorite },
+  //   "-createdAt -updatedAt",
+  //   {
+  //     skip,
+  //     limit,
+  //   }
+  // ).populate("owner", "name email");
 };
 
-const getContactById = async (contactId, userId) => {
+const getContactById = async ({ contactId, userId }) => {
   return await Contact.findOne({ owner: userId, _id: contactId });
 };
 
