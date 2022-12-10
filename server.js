@@ -1,6 +1,6 @@
 const app = require("./app");
 const { exit } = require("node:process");
-const PORT = process.env.PORT || 3000;
+const { PORT = 3000 } = process.env;
 
 const { connectionMongo } = require("./dbMongo/conectionMongodb");
 
@@ -16,9 +16,9 @@ const start = async () => {
         `Database connection successful. Server running. Use our API on port: ${PORT}`
       );
     });
-  } catch (error) {
+  } catch (err) {
     console.error(
-      `Server not running.Failed to launch application with error: ${error.message}`
+      `Server not running.Failed to launch application with error: ${err.message}`
     );
     exit(1);
   }

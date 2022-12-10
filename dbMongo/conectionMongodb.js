@@ -1,14 +1,12 @@
 const mongoose = require("mongoose");
-const uriDb = process.env.MONGO_URL;
+const { MONGO_URL } = process.env;
 
-const connectionMongo = () => {
-  return mongoose.connect(uriDb, {
-    promiseLibrary: global.Promise,
+const connectionMongo = async () => {
+  return mongoose.connect(MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
 };
-connectionMongo().catch((err) => console.error(err));
 
 module.exports = {
   connectionMongo,

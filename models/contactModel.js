@@ -1,6 +1,9 @@
 const { model, Schema } = require("mongoose");
-// const { userSchema } = require("./userModel");
-const contactsSchema = new Schema(
+const phoneRegExp = /^\+\d{2}\(\d{3}\)\d{3}-\d{2}-\d{2}$/;
+const emailRegexp = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+const { handleSaveErrors } = require("../helpers");
+
+const contactSchema = new Schema(
   {
     name: {
       type: String,
@@ -9,10 +12,12 @@ const contactsSchema = new Schema(
     email: {
       type: String,
       unique: true,
+      match: emailRegexp,
     },
     phone: {
       type: String,
       unique: true,
+      match: phoneRegExp,
     },
     favorite: {
       type: Boolean,
@@ -21,10 +26,13 @@ const contactsSchema = new Schema(
     owner: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
   },
   { versionKey: false, timestamps: true }
 );
-const Contact = model("Contact", contactsSchema);
+contactSchema.post("save", handleSaveErrors);
+
+const Contact = model("contact", contactSchema);
 
 module.exports = { Contact };
