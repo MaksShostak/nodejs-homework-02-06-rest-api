@@ -6,7 +6,7 @@ const fs = require("fs/promises");
 const moment = require("moment");
 
 // const path = require("path");
-// const uploadDir = path.join(__dirname, "public", "avatars");
+// const uploadDir = path.join(__dirname, "public");
 
 const app = express();
 

@@ -1,5 +1,5 @@
 const { User } = require("../models/userModel");
-const { RequestError } = require("../helpers");
+const { RequestError, sendMail } = require("../helpers");
 const gravatar = require("gravatar");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
@@ -7,6 +7,7 @@ const { JWT_SECRET } = process.env;
 const path = require("path");
 const fs = require("fs/promises");
 const Jimp = require("jimp");
+const { nanoid } = require("nanoid");
 
 const avatarsDir = path.join(__dirname, "../", "public", "avatars");
 
@@ -17,12 +18,22 @@ const registration = async ({ email, password, subscription }) => {
   }
   const avatarURL = gravatar.url(email, { s: "250", r: "x", d: "retro" }, true);
   const hashPassword = await bcrypt.hash(password, 8);
-  return await User.create({
+  const verificationToken = nanoid();
+
+  const newUser = await User.create({
     email,
     password: hashPassword,
     subscription,
     avatarURL,
+    verificationToken,
   });
+  const mail = {
+    to: email,
+    subject: "Сonfirmation of registration",
+    html: `<a target="_blank" href = "http://localhost:3000/api/users/verify/:${newUser.verificationToken}"> Сlick here to confirm registration</a>`,
+  };
+  await sendMail(mail);
+  return newUser;
 };
 
 const login = async ({ email, password }) => {
@@ -30,6 +41,9 @@ const login = async ({ email, password }) => {
   if (!user) {
     // throw new NotAuthorizedError(`No user with email: ${email} found`);
     throw RequestError(401, "Email or password invalid");
+  }
+  if (!user.verify) {
+    throw RequestError(401, "Email not varify ");
   }
   const passwordCompare = await bcrypt.compare(password, user.password);
   if (!passwordCompare) {
@@ -71,10 +85,39 @@ const changeAvatar = async (userId, tmpDir, originalname) => {
   return await User.findByIdAndUpdate(userId, { avatarURL });
 };
 
+const verify = async (varificationToken) => {
+  const user = await User.findOne({ varificationToken });
+  if (!user) {
+    throw RequestError(404, "User not found");
+  }
+  await User.findByIdAndUpdate(user._id, {
+    varificationToken: "",
+    verify: true,
+  });
+};
+
+const reverify = async (email) => {
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw RequestError(404, "User not found");
+  }
+  if (user.verify) {
+    throw RequestError(404, "Verification has already been passed");
+  }
+  const mail = {
+    to: email,
+    subject: "Сonfirmation of registration",
+    html: `<a target="_blank" href = "http://localhost:3000/api/users/verify/:${user.verificationToken}"> Сlick here to confirm registration</a>`,
+  };
+  await sendMail(mail);
+};
+
 module.exports = {
   registration,
   login,
   logout,
   updateSubscriptionUser,
   changeAvatar,
+  verify,
+  reverify,
 };

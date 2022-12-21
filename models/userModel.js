@@ -1,16 +1,13 @@
 const { model, Schema } = require("mongoose");
 // const bcrypt = require("bcrypt");
 const emailRegexp = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
-const passwordRegexp = /^[a-zA-Z0-9]{3,30}$/;
+
 const { handleSaveErrors } = require("../helpers");
 
 const userSchema = new Schema(
   {
     password: {
       type: String,
-      minlength: 6,
-      maxlength: 14,
-      match: passwordRegexp,
       required: [true, "Set password for user"],
     },
     email: {
@@ -31,6 +28,14 @@ const userSchema = new Schema(
     avatarURL: {
       type: String,
       required: true,
+    },
+    verify: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      required: [true, "Verify token is required"],
     },
   },
   { versionKey: false, timestamps: true }
