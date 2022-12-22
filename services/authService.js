@@ -1,9 +1,10 @@
 const { User } = require("../models/userModel");
-const { RequestError, sendMail } = require("../helpers");
+const { RequestError, sendMail, createVerifyEmail } = require("../helpers");
 const gravatar = require("gravatar");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { JWT_SECRET } = process.env;
+
 const path = require("path");
 const fs = require("fs/promises");
 const Jimp = require("jimp");
@@ -27,12 +28,9 @@ const registration = async ({ email, password, subscription }) => {
     avatarURL,
     verificationToken,
   });
-  const mail = {
-    to: email,
-    subject: "Сonfirmation of registration",
-    html: `<a target="_blank" href = "http://localhost:3000/api/users/verify/:${newUser.verificationToken}"> Сlick here to confirm registration</a>`,
-  };
-  await sendMail(mail);
+  const verifyMail = createVerifyEmail(email, verificationToken);
+
+  await sendMail(verifyMail);
   return newUser;
 };
 
@@ -104,12 +102,8 @@ const reverify = async (email) => {
   if (user.verify) {
     throw RequestError(404, "Verification has already been passed");
   }
-  const mail = {
-    to: email,
-    subject: "Сonfirmation of registration",
-    html: `<a target="_blank" href = "http://localhost:3000/api/users/verify/:${user.verificationToken}"> Сlick here to confirm registration</a>`,
-  };
-  await sendMail(mail);
+  const verifyMail = createVerifyEmail(email, user.verificationToken);
+  await sendMail(verifyMail);
 };
 
 module.exports = {

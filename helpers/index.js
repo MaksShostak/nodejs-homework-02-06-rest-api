@@ -6,6 +6,7 @@ const {
 
 const controllerWrapper = require("./controllerWrapper");
 const sendMail = require("./sendgridSendMail");
+const createVerifyEmail = require("./createVerifyEmail");
 
 module.exports = {
   RequestError,
@@ -13,4 +14,5 @@ module.exports = {
   handleSaveErrors,
   controllerWrapper,
   sendMail,
+  createVerifyEmail,
 };
