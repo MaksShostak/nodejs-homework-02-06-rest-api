@@ -6,6 +6,8 @@ const {
   logout,
   updateSubscriptionUser,
   changeAvatar,
+  verify,
+  reverify,
 } = require("../services/authService");
 
 const registrationController = async (req, res) => {
@@ -16,6 +18,7 @@ const registrationController = async (req, res) => {
     password,
     subscription,
   });
+
   res.status(201).json({
     message: "Created",
     status: "success",
@@ -105,6 +108,28 @@ const avatarController = async (req, res) => {
     avatarURL,
   });
 };
+
+const verificationController = async (req, res) => {
+  const { varificationToken } = req.params;
+  await verify(varificationToken);
+  res.status(200).json({
+    status: "success",
+    code: 200,
+    message: "Verification successful",
+  });
+};
+
+const reverificationController = async (req, res) => {
+  const { email } = req.body;
+  await reverify(email);
+
+  res.status(200).json({
+    status: "success",
+    code: 200,
+    message: "Verification email sent",
+  });
+};
+
 module.exports = {
   registrationController,
   loginController,
@@ -112,4 +137,6 @@ module.exports = {
   currentController,
   updateSubscriptionController,
   avatarController,
+  verificationController,
+  reverificationController,
 };
