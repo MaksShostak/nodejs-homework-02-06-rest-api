@@ -1,18 +1,20 @@
 const {
-  NotAuthorizedError,
   RequestError,
   handleSaveErrors,
+  NotAuthorizedError,
 } = require("./errors");
 
 const controllerWrapper = require("./controllerWrapper");
 const sendMail = require("./sendgridSendMail");
 const createVerifyEmail = require("./createVerifyEmail");
+const createTokens = require("./createTokens");
 
 module.exports = {
   RequestError,
-  NotAuthorizedError,
   handleSaveErrors,
+  NotAuthorizedError,
   controllerWrapper,
   sendMail,
   createVerifyEmail,
+  createTokens,
 };

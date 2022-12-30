@@ -9,6 +9,7 @@ const {
   updateSubscriptionController,
   verificationController,
   reverificationController,
+  refreshController,
 } = require("../../controllers/authController");
 
 const { controllerWrapper } = require("../../helpers");
@@ -23,6 +24,7 @@ const {
   schemaLoginUser,
   schemaVerifyEmailUser,
   schemaSubscriptionUser,
+  schemaRefreshToken,
 } = require("../../schemas/usersSchema");
 
 router.post(
@@ -30,10 +32,26 @@ router.post(
   validateBody(schemaRegisterUser),
   controllerWrapper(registrationController)
 );
+router.get(
+  "/verify/:verificationToken",
+  controllerWrapper(verificationController)
+);
+
+router.post(
+  "/verify",
+  validateBody(schemaVerifyEmailUser),
+  controllerWrapper(reverificationController)
+);
+
 router.post(
   "/login",
   validateBody(schemaLoginUser),
   controllerWrapper(loginController)
+);
+router.post(
+  "/refresh",
+  validateBody(schemaRefreshToken),
+  controllerWrapper(refreshController)
 );
 router.post("/logout", authMiddleware, controllerWrapper(logoutController));
 router.get("/current", authMiddleware, controllerWrapper(currentController));
@@ -49,16 +67,6 @@ router.patch(
   authMiddleware,
   avatarMiddleware.single("avatar"),
   controllerWrapper(avatarController)
-);
-router.get(
-  "/verify/:verificationToken",
-  controllerWrapper(verificationController)
-);
-
-router.post(
-  "/verify",
-  validateBody(schemaVerifyEmailUser),
-  controllerWrapper(reverificationController)
 );
 
 module.exports = { usersRouter: router };

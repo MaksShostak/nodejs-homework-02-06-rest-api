@@ -8,6 +8,7 @@ const {
   changeAvatar,
   verify,
   reverify,
+  refresh,
 } = require("../services/authService");
 
 const registrationController = async (req, res) => {
@@ -31,9 +32,10 @@ const registrationController = async (req, res) => {
   });
 };
 const loginController = async (req, res) => {
-  const { token, user } = await login(req.body);
+  const { accessToken, refreshToken, user } = await login(req.body);
   res.status(200).json({
-    token,
+    accessToken,
+    refreshToken,
     status: "success",
     code: 200,
     user: {
@@ -42,13 +44,23 @@ const loginController = async (req, res) => {
     },
   });
 };
+const refreshController = async (req, res) => {
+  const { refreshToken } = req.body;
+  const tokens = await refresh(refreshToken);
+  res.status(200).json({
+    ...tokens,
+    status: "success",
+    code: 200,
+    message: "OK",
+  });
+};
 const logoutController = async (req, res) => {
   const { _id } = req.user;
 
   await logout(_id);
   res.status(204).json({
     status: "success",
-    message: "No Content",
+    message: "logout success",
     code: 204,
   });
 };
@@ -66,7 +78,7 @@ const currentController = async (req, res) => {
   });
 };
 
-const updateSubscriptionController = async (req, res, next) => {
+const updateSubscriptionController = async (req, res) => {
   const userSubscription = ["starter", "pro", "business"];
   const { _id: userId } = req.user;
   const { subscription } = req.body;
@@ -139,4 +151,5 @@ module.exports = {
   avatarController,
   verificationController,
   reverificationController,
+  refreshController,
 };

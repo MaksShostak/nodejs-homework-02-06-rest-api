@@ -20,6 +20,9 @@ const schemaSubscriptionUser = Joi.object({
     .valid(...subscriptionList)
     .required(),
 });
+const schemaRefreshToken = Joi.object({
+  refreshToken: Joi.string().required(),
+});
 
 const schemaVerifyEmailUser = Joi.object({
   email: Joi.string().pattern(emailRegexp).required(),
@@ -29,4 +32,5 @@ module.exports = {
   schemaLoginUser,
   schemaVerifyEmailUser,
   schemaSubscriptionUser,
+  schemaRefreshToken,
 };

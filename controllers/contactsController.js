@@ -46,7 +46,7 @@ const getOneContactById = async (req, res, next) => {
   });
 };
 
-const postContact = async (req, res, next) => {
+const postContact = async (req, res) => {
   const { _id: userId } = req.user;
 
   const contact = await addContact(req.body, userId);
@@ -58,7 +58,7 @@ const postContact = async (req, res, next) => {
   });
 };
 
-const deleteContact = async (req, res, next) => {
+const deleteContact = async (req, res) => {
   const { id: contactId } = req.params;
   const { _id: userId } = req.user;
 
@@ -75,7 +75,7 @@ const deleteContact = async (req, res, next) => {
   });
 };
 
-const putContact = async (req, res, next) => {
+const putContact = async (req, res) => {
   const { id: contactId } = req.params;
   const { _id: userId } = req.user;
 
@@ -93,7 +93,7 @@ const putContact = async (req, res, next) => {
   });
 };
 
-const patchContact = async (req, res, next) => {
+const patchContact = async (req, res) => {
   const { id: contactId } = req.params;
   const { _id: userId } = req.user;
 
@@ -111,7 +111,7 @@ const patchContact = async (req, res, next) => {
   });
 };
 
-const updateStatusContact = async (req, res, next) => {
+const updateStatusContact = async (req, res) => {
   const { id: contactId } = req.params;
   const { _id: userId } = req.user;
   const keys = Object.keys(req.body);

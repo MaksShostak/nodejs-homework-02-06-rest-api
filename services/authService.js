@@ -1,10 +1,16 @@
 const { User } = require("../models/userModel");
-const { RequestError, sendMail, createVerifyEmail } = require("../helpers");
-const gravatar = require("gravatar");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
-const { JWT_SECRET } = process.env;
+const { REFRESH_JWT_SECRET } = process.env;
 
+const {
+  RequestError,
+  sendMail,
+  createVerifyEmail,
+  createTokens,
+} = require("../helpers");
+const gravatar = require("gravatar");
+
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const path = require("path");
 const fs = require("fs/promises");
 const Jimp = require("jimp");
@@ -37,7 +43,6 @@ const registration = async ({ email, password, subscription }) => {
 const login = async ({ email, password }) => {
   const user = await User.findOne({ email });
   if (!user) {
-    // throw new NotAuthorizedError(`No user with email: ${email} found`);
     throw RequestError(401, "Email or password invalid");
   }
   if (!user.verify) {
@@ -45,20 +50,35 @@ const login = async ({ email, password }) => {
   }
   const passwordCompare = await bcrypt.compare(password, user.password);
   if (!passwordCompare) {
-    // throw new NotAuthorizedError("Email or password is wrong");
     throw RequestError(401, "Email or password invalid");
   }
   const payload = {
     _id: user._id,
-    createdAt: user.createdAt,
   };
-  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
-  await User.findByIdAndUpdate(user._id, { token });
-  return { token, user };
+  const { refreshToken, accessToken } = createTokens(payload);
+  await User.findByIdAndUpdate(user._id, { accessToken, refreshToken });
+  return { accessToken, refreshToken, user };
+};
+
+const refresh = async (refreshToken) => {
+  try {
+    const { _id } = jwt.verify(refreshToken, REFRESH_JWT_SECRET);
+    const payload = {
+      _id,
+    };
+    const tokens = createTokens(payload);
+    await User.findByIdAndUpdate(_id, { ...tokens });
+    return tokens;
+  } catch (error) {
+    throw RequestError(403, error.message);
+  }
 };
 
 const logout = async (id) => {
-  return await User.findByIdAndUpdate(id, { token: "" });
+  return await User.findByIdAndUpdate(id, {
+    refreshToken: "",
+    accessToken: "",
+  });
 };
 
 const updateSubscriptionUser = async (userId, subscription) => {
@@ -114,4 +134,5 @@ module.exports = {
   changeAvatar,
   verify,
   reverify,
+  refresh,
 };
